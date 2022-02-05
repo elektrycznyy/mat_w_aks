@@ -36,22 +36,14 @@ git clone https://github.com/elektrycznyy/mat_w_aks.git
 
 ## Tworzenie docker image
 ```bash
-mateuszw@mateuszw-VirtualBox:~$ cd mat_w_aks
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker build .
+cd mat_w_aks
+docker build -t myapp:latest .
 ...
 Successfully built 3819ec1a9a18
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker images
+docker images
 REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
-<none>       <none>    3819ec1a9a18   24 seconds ago   57.2MB
+myapp        latest    3819ec1a9a18   24 seconds ago   57.2MB
 alpine       3.5       f80194ae2e0c   3 years ago      4MB
-```
-Dodajemy tagi
-```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker tag 3819ec1a9a18 myapp:latest
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker images
-REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
-myapp        latest    3819ec1a9a18   6 minutes ago   57.2MB
-alpine       3.5       f80194ae2e0c   3 years ago     4MB
 ```
 
 ## Tworzenie klastra AKS i usługi ACR przy użyciu Terraform
@@ -64,20 +56,20 @@ az login
 
 1. Sprawdź czy terraform jest zainstalowany
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ terraform --version
+terraform --version
 Terraform v1.1.4
 on linux_amd64
 ```
 2. Zainicjuj projekt
 ```terraform
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ terraform init
+terraform init
 ...
 Terraform has been successfully initialized!
 ```
 3. Polecenie ```terraform plan``` tworzy plan umożliwiający podgląd zmian, które Terraform planuje wprowadzić w infrastrukturze.
 4. Wywołaj polecenie ```terraform apply```, które wykonuje wszystkie działania zaproponowane w ```terraform plan```.
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ terraform apply
+terraform apply
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are
 indicated with the following symbols:
@@ -107,13 +99,13 @@ Teraz tworzone są wszystkie zasoby z ```terraform plan```, może to potrwać 5-
 
 6. Zaloguj się do ACR
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ az acr login -n mateuszAKSacr
+az acr login -n mateuszAKSacr
 Login Succeeded
 ```
 7. Dodatkowo otaguj odpowiednio swój dockerimage, aby umożliwić przesłanie go do ACR. Zauważ, że ten sam obraz posiada teraz dwie nazwy.
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker tag myapp:latest mateuszaksacr.azurecr.io/myapp:latest
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker images
+docker tag myapp:latest mateuszaksacr.azurecr.io/myapp:latest
+docker images
 REPOSITORY                       TAG       IMAGE ID       CREATED       SIZE
 myapp                            latest    3819ec1a9a18   2 hours ago   57.2MB
 mateuszaksacr.azurecr.io/myapp   latest    3819ec1a9a18   2 hours ago   57.2MB
@@ -121,7 +113,7 @@ alpine                           3.5       f80194ae2e0c   3 years ago   4MB
 ```
 8. Umieść obraz w repozytorium ACR
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ docker push mateuszaksacr.azurecr.io/myapp
+docker push mateuszaksacr.azurecr.io/myapp
 Using default tag: latest
 The push refers to repository [mateuszaksacr.azurecr.io/myapp]
 02cdc0f5399a: Pushed 
@@ -134,12 +126,12 @@ latest: digest: sha256:8cbf8ded206c73fc40c49e1be639bddb1f9b1c3f7e49b347cab954f49
 ```
 9. Uzyskaj dostęp do klastra. Polecenie ```az aks get-credentials``` kopiuje kubeconfig zawierający konfigurację dostępu do klastra do stacji roboczej.
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ az aks get-credentials --name mateusz-aks --resource-group mateusz_aks_tf_rg
+az aks get-credentials --name mateusz-aks --resource-group mateusz_aks_tf_rg
 Merged "mateusz-aks" as current context in /home/mateuszw/.kube/config
 ```
 Sprawdźmy zatem ilość węzłów
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ kubectl get nodes
+kubectl get nodes
 NAME                             STATUS   ROLES   AGE   VERSION
 aks-system-23231742-vmss000000   Ready    agent   83m   v1.19.11
 aks-system-23231742-vmss000001   Ready    agent   83m   v1.19.11
@@ -147,13 +139,13 @@ aks-system-23231742-vmss000001   Ready    agent   83m   v1.19.11
 ## Uruchomienie aplikacji
 Uruchamiamy aplikację
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ kubectl apply -f aks-depl.yaml
+kubectl apply -f aks-depl.yaml
 deployment.apps/my-python-deployment created
 service/my-python-app-svc created
 ```
 Wyświetlamy informacje
 ```bash
-ateuszw@mateuszw-VirtualBox:~/mat_w_aks$ kubectl get all
+kubectl get all
 NAME                                       READY   STATUS    RESTARTS   AGE
 pod/my-python-deployment-d658f477c-47t6q   1/1     Running   0          94s
 pod/my-python-deployment-d658f477c-qmlv7   1/1     Running   0          94s
@@ -172,7 +164,7 @@ replicaset.apps/my-python-deployment-d658f477c   2         2         2       95s
 ## Sprawdzenie aplikacji
 Sprawdzamy odwołanie do zewnętrznego ip load balancera 
 ```bash
-mateuszw@mateuszw-VirtualBox:~/mat_w_aks$ curl 20.101.255.211:5000/czesc/Mateusz
+curl 20.101.255.211:5000/czesc/Mateusz
 <!DOCTYPE html>
 <html lang="en">
 <head>
