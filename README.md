@@ -55,7 +55,7 @@ az login
 ```
 
 1. Sprawdź czy terraform jest zainstalowany
-```bash
+```terraform
 terraform --version
 Terraform v1.1.4
 on linux_amd64
@@ -68,7 +68,7 @@ Terraform has been successfully initialized!
 ```
 3. Polecenie ```terraform plan``` tworzy plan umożliwiający podgląd zmian, które Terraform planuje wprowadzić w infrastrukturze.
 4. Wywołaj polecenie ```terraform apply```, które wykonuje wszystkie działania zaproponowane w ```terraform plan```.
-```bash
+```terraform
 terraform apply
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are
